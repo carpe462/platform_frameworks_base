@@ -191,5 +191,8 @@
         <item>com.facebook.katana.LoginActivity</item> 
     </string-array>
 
+    <!-- Whether device has physical tri state switch -->
+    <bool name="config_hasAlertSlider">false</bool>
+
 </resources>
 
