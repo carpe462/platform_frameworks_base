@@ -100,6 +100,7 @@ import com.android.systemui.plugins.VolumeDialog;
 import com.android.systemui.plugins.VolumeDialogController;
 import com.android.systemui.plugins.VolumeDialogController.State;
 import com.android.systemui.plugins.VolumeDialogController.StreamState;
+import com.android.systemui.statusbar.phone.ExpandableIndicator;
 import com.android.systemui.statusbar.policy.AccessibilityManagerWrapper;
 import com.android.systemui.statusbar.policy.ConfigurationController;
 import com.android.systemui.statusbar.policy.DeviceProvisionedController;
@@ -152,6 +153,8 @@ public class VolumeDialogImpl implements VolumeDialog,
     private ImageButton mRingerIcon;
     private ViewGroup mODICaptionsView;
     private CaptionsToggleImageButton mODICaptionsIcon;
+    private View mExpandRowsView;
+    private ExpandableIndicator mExpandRows;
     private View mSettingsView;
     private ImageButton mSettingsIcon;
     private FrameLayout mZenIcon;
@@ -593,8 +596,8 @@ public class VolumeDialogImpl implements VolumeDialog,
     }
 
     public void initSettingsH() {
-        if (mSettingsView != null) {
-            mSettingsView.setVisibility(
+        if (mExpandRowsView != null) {
+            mExpandRowsView.setVisibility(
                     mDeviceProvisionedController.isCurrentUserSetup() &&
                             mActivityManager.getLockTaskModeState() == LOCK_TASK_MODE_NONE ?
                             VISIBLE : GONE);
@@ -639,6 +642,7 @@ public class VolumeDialogImpl implements VolumeDialog,
                 dismissH(DISMISS_REASON_SETTINGS_CLICKED);
                 Dependency.get(ActivityStarter.class).startActivity(intent,
                         true /* dismissShade */);
+                return true;
             });
             mExpandRows.setOnClickListener(v -> {
                 if (!mExpanded) {
@@ -692,6 +696,7 @@ public class VolumeDialogImpl implements VolumeDialog,
                     provideTouchHapticH(VibrationEffect.get(VibrationEffect.EFFECT_TICK));
                     mExpanded = false;
                 }
+                mExpandRows.setExpanded(mExpanded);
             });
         }
     }
