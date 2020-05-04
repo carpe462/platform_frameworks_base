@@ -155,6 +155,8 @@ public class VolumeDialogImpl implements VolumeDialog,
     private CaptionsToggleImageButton mODICaptionsIcon;
     private View mExpandRowsView;
     private ExpandableIndicator mExpandRows;
+    private View mSettingsView;
+    private ImageButton mSettingsIcon;
     private FrameLayout mZenIcon;
     private final List<VolumeRow> mRows = new ArrayList<>();
     private ConfigurableTexts mConfigurableTexts;
@@ -347,6 +349,11 @@ public class VolumeDialogImpl implements VolumeDialog,
         if (mRinger != null) {
             mRingerIcon = mRinger.findViewById(R.id.ringer_icon);
             mZenIcon = mRinger.findViewById(R.id.dnd_icon);
+            if(!isAudioPanelOnLeftSide()) {
+                mRinger.setForegroundGravity(Gravity.RIGHT);
+            } else {
+                mRinger.setForegroundGravity(Gravity.LEFT);
+            }
             Util.setVisOrGone(mRinger, !mHasAlertSlider);
         }
 
@@ -652,6 +659,7 @@ public class VolumeDialogImpl implements VolumeDialog,
                     dismissH(DISMISS_REASON_SETTINGS_CLICKED);
                     return true;
                 }
+            });
             mExpandRows.setOnClickListener(v -> {
                 if (!mExpanded) {
                     VolumeRow ring = findRow(STREAM_RING);
@@ -1212,10 +1220,6 @@ public class VolumeDialogImpl implements VolumeDialog,
         }
         if (mLocalMediaManager != null) {
             mLocalMediaManager.stopScan();
-        }
-        if (!mShowing) {
-            // This may happen when dismissing an expanded panel, don't animate again
-            return;
         }
         mHandler.removeMessages(H.DISMISS);
         mHandler.removeMessages(H.SHOW);
