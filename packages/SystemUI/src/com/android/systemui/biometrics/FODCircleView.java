@@ -168,6 +168,8 @@ public class FODCircleView extends ImageView {
     public FODCircleView(Context context) {
         super(context);
 
+        setScaleType(ScaleType.CENTER);
+
         IFingerprintInscreen daemon = getFingerprintInScreenDaemon();
         if (daemon == null) {
             throw new RuntimeException("Unable to get IFingerprintInscreen");
@@ -443,12 +445,12 @@ public class FODCircleView extends ImageView {
             } else {
                 mWindowManager.updateViewLayout(mPressedView, mPressedParams);
             }
-        } else {
-          mPressedParams.screenBrightness = 0.0f;
-          mPressedParams.dimAmount = 0.0f;
-          if (mPressedView.getParent() != null) {
-              mWindowManager.removeView(mPressedView);
-          }
+            } else {
+                mPressedParams.screenBrightness = 0.0f;
+                mPressedParams.dimAmount = 0.0f;
+            if (mPressedView.getParent() != null) {
+                mWindowManager.removeView(mPressedView);
+            }
         }
     }
 
