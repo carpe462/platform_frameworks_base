@@ -157,34 +157,15 @@ public class FODCircleView extends ImageView implements TunerService.Tunable {
                         PowerManager.WAKE_REASON_GESTURE, FODCircleView.class.getSimpleName()));
                 }
                 mPressPending = true;
+            } else {
+                mHandler.post(() -> showCircle());
             }
-
-            if (mIsBouncer && !isPinOrPattern(mUpdateMonitor.getCurrentUser())) {
-                // Ignore show calls when Keyguard password screen is being shown
-                return;
-            }
-
-            if (mIsKeyguard && mUpdateMonitor.getUserCanSkipBouncer(mUpdateMonitor.getCurrentUser())) {
-                // Ignore show calls if user can skip bouncer
-                return;
-            }
-
-            if (mIsKeyguard && !mIsBiometricRunning) {
-                return;
-            }
-
-            if (mUpdateMonitor.userNeedsStrongAuth()) {
-                // Keyguard requires strong authentication (not biometrics)
-                return;
-            }
-
-            mHandler.post(() -> showCircle());
         }
 
         @Override
         public void onFingerUp() {
             mHandler.post(() -> hideCircle());
-            if (mPressPending) {
+            if (mFodGestureEnable && mPressPending) {
                 mPressPending = false;
             }
         }
@@ -266,13 +247,17 @@ public class FODCircleView extends ImageView implements TunerService.Tunable {
         }
 
         @Override
+        public void onStartedGoingToSleep(int why) {
+            if (mFodGestureEnable){
+                hideCircle();
+            } else {
+                hide();
+            }
+        }
+
+        @Override
         public void onScreenTurnedOff() {
             mScreenTurnedOn = false;
-            if (!mFodGestureEnable) {
-                hide();
-            } else {
-                hideCircle();
-            }
         }
 
         @Override
@@ -284,11 +269,10 @@ public class FODCircleView extends ImageView implements TunerService.Tunable {
 
         @Override
         public void onScreenTurnedOn() {
-            if (mUpdateMonitor.isFingerprintDetectionRunning() && !mFodGestureEnable) {
+            if (!mFodGestureEnable && mUpdateMonitor.isFingerprintDetectionRunning()) {
                 show();
             }
-
-            if (mPressPending) {
+            if (mFodGestureEnable && mPressPending) {
                 mHandler.post(() -> showCircle());
                 mPressPending = false;
             }
@@ -559,8 +543,7 @@ public class FODCircleView extends ImageView implements TunerService.Tunable {
             // Keyguard requires strong authentication (not biometrics)
             return;
         }
-
-        if (!mUpdateMonitor.isScreenOn() && !mFodGestureEnable) {
+        if (!mFodGestureEnable && !mUpdateMonitor.isScreenOn()) {
             // Keyguard is shown just after screen turning off
             return;
         }
